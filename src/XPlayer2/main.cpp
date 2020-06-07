@@ -6,8 +6,7 @@
 #include "XVideoWidget.h"
 #include "XDemux.h"
 #include "XDecode.h"
-#include "XAudioPlay.h"
-#include "XResample.h"
+#include "XAudioThread.h"
 
 using std::cout;
 using std::endl;
@@ -23,16 +22,18 @@ public:
 		demux.Read();
 		demux.Clear();
 		demux.Close();*/
-		//url = "v720p.mp4";
-		url = "1080.mp4";
+		url = "v720p.mp4";
+		//url = "1080.mp4";
 		cout << "demux.Open = " << demux.Open(url);
 		cout << "CopyVPara = " << demux.CopyVCodePara() << endl;
 		cout << "CopyAPara = " << demux.CopyACodePara() << endl;
 
 		cout << "vdecode.Open() = " << vdecode.Open(demux.CopyVCodePara()) << endl;
 		cout << "adecode.Open() = " << adecode.Open(demux.CopyACodePara()) << endl;
-		cout << "resample.Open = " << resample.Open(demux.CopyACodePara()) << endl;
-		cout << "audioPlay.Open = " << XAudioPlay::GetAduioPlay()->Open(demux.sampleRate, demux.channels) << endl;
+		
+		at = new XAudioThread();
+		at->Open(demux.CopyACodePara(), demux.sampleRate, demux.channels);
+		at->start();
 	}
 
 	void run()
@@ -47,19 +48,7 @@ public:
 
 			if (demux.IsAudioPkt(pkt))
 			{
-				adecode.SendPkt(pkt);
-				auto frame = adecode.RecvPkt();
-				int len = resample.ReSample(frame, data);
-				cout << "Resample:" << len << " ";
-				while (len > 0)
-				{
-					if (XAudioPlay::GetAduioPlay()->GetFree() >= len)
-					{
-						XAudioPlay::GetAduioPlay()->PlayAudio((const char*)data, len);
-						break;
-					}
-					msleep(1);
-				}
+				at->Push(pkt);
 			}
 			else
 			{
@@ -79,7 +68,7 @@ public:
 	XDecode vdecode;
 	XDecode adecode;
 	XVideoWidget *video;
-	XResample resample;
+	XAudioThread* at;
 };
 
 int main(int argc, char *argv[])

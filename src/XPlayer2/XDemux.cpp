@@ -128,7 +128,7 @@ std::shared_ptr<AVPacket> XDemux::Read()
 	//½âÂëÊ±¼ä
 	pkt->dts = pkt->dts * rate * 1000;
 
-	cout << "pkt->pts = " << pkt->pts << endl;
+	//cout << "pkt->pts = " << pkt->pts << endl;
 	return std::shared_ptr<AVPacket>(pkt,ReleasePkt);
 }
 
