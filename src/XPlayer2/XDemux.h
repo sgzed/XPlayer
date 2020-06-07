@@ -34,6 +34,10 @@ public:
 	int height = 0;
 	int width = 0;
 
+	int sampleFormat = 1;
+	int sampleRate = 44100;
+	int channels = 2;
+
 protected:
 	int audio_stream = 0;
 	int video_stream = 1;

@@ -88,7 +88,8 @@ std::shared_ptr<AVFrame> XDecode::RecvPkt()
 		av_frame_free(&frame);
 		return nullptr;
 	}
-	cout << "[" << frame->linesize[0] << "] " << std::flush;
+	//cout << "[" << frame->linesize[0] << "] " << std::flush;
+	cout << "frame pts = " << frame->pts << endl;
 	return std::shared_ptr<AVFrame>(frame, [](AVFrame* f) {
 		av_frame_free(&f);
 	});

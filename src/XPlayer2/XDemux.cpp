@@ -91,6 +91,11 @@ bool XDemux::Open(const char* url)
 	cout << "=========================音频信息=========================" << endl;
 	audio_stream = av_find_best_stream(format_ctx, AVMEDIA_TYPE_AUDIO, -1, -1, nullptr, 0);
 	AVStream* a_stream = format_ctx->streams[audio_stream];
+
+	sampleFormat = a_stream->codecpar->format;
+	sampleRate = a_stream->codecpar->sample_rate;
+	channels = a_stream->codecpar->channels;
+
 	//AVSampleFormat	fltp解码出来,不能播放，因为32bit,重采样
 	cout << "format = " << a_stream->codecpar->format << endl;
 	cout << "codec_id = " << a_stream->codecpar->codec_id << endl;
@@ -123,7 +128,7 @@ std::shared_ptr<AVPacket> XDemux::Read()
 	//解码时间
 	pkt->dts = pkt->dts * rate * 1000;
 
-	cout << pkt->pts << " " << fflush;
+	cout << "pkt->pts = " << pkt->pts << endl;
 	return std::shared_ptr<AVPacket>(pkt,ReleasePkt);
 }
 
